@@ -205,8 +205,8 @@ export default function Settings() {
     </Section>}
 
     <div className="dim small" style={{ textAlign: 'center', marginTop: 4, lineHeight: 1.6 }}>
-      openGym · {t('free & open source (AGPL v3)')}<br />
-      <a href="https://github.com/DuarteSantos8/openGym" target="_blank" rel="noopener noreferrer">source code</a> · exercise data: hasaneyldrm/exercises-dataset (CC)
+      openGym · {t('free & open source (AGPL v3)')} · by Allan Indrajith<br />
+      <a href="https://github.com/allanindrajith/opengym" target="_blank" rel="noopener noreferrer">source code</a> · exercise data: hasaneyldrm/exercises-dataset (CC)
     </div>
   </div>
 }

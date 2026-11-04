@@ -275,7 +275,7 @@ through app stores.
   - `npm run build:mobile`, then open `android/` in Android Studio or `ios/` in Xcode —
     see **docs/MOBILE.md**. `NOTICE.md` now carries an AGPL §7 app-store exception.
 - 🤖 **Android APK, no Play Store.** The official build is a signed, sideloadable APK
-  (~4.5 MB) from [opengym.duarte-santos.ch](https://opengym.duarte-santos.ch) — deliberately
+  (~4.5 MB) from [allanindrajith.github.io/opengym](https://allanindrajith.github.io/opengym) — deliberately
   store-free. docs/MOBILE.md covers building and signing your own.
 - 🍎 **iOS reality check.** Apple permits no installs outside the App Store, so there is no
   iOS download; the docs explain the free options (self-hosted PWA on the home screen, or

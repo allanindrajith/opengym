@@ -1,6 +1,6 @@
 # Third-party notices
 
-openGym — Copyright (C) 2026 Duarte Santos.
+openGym (Allan's Edition) — Copyright (C) 2026 Allan Indrajith.
 openGym's own code is licensed under the **GNU AGPL v3.0** (see [LICENSE](LICENSE)).
 
 ## App store exception

@@ -2,6 +2,11 @@
   "name": "opengym-frontend",
   "private": true,
   "version": "1.2.3",
+  "author": "Allan Indrajith",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/allanindrajith/opengym.git"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
