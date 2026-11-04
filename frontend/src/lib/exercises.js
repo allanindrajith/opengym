@@ -1,5 +1,6 @@
 import { EXDB } from './exercises-data.js'
 import { t } from './i18n.js'
+import { HD_GIF_MAP } from './hd-gifs.js'
 
 export { EXDB }
 export const EXIDX = {}
@@ -27,12 +28,24 @@ export function registerCustom(list) {
 export const allExercises = st => [...(st.customEx || []), ...EXDB]
 
 // Media normally sits next to the app (img/ and gif/, mounted into the web container).
-// A build can point them somewhere else — the demo build pulls them off a CDN instead of
-// shipping ~140 MB of images into the deployment.
+// 360x360 HD animation CDN is used for high-resolution visual quality (4x the pixels of 180px).
 const IMG_BASE = import.meta.env.VITE_IMG_BASE || 'img/'
 const GIF_BASE = import.meta.env.VITE_GIF_BASE || 'gif/'
-export const imgSrc = ex => IMG_BASE + ex.img
-export const gifSrc = ex => GIF_BASE + ex.gif
+const HD_BASE = 'https://cdn.jsdelivr.net/gh/JahelCuadrado/ExerciseGymGifsDB@v1.1.0/'
+
+export const gifSrc = ex => {
+  if (ex?.id && HD_GIF_MAP[ex.id]) {
+    return HD_BASE + HD_GIF_MAP[ex.id]
+  }
+  return GIF_BASE + ex.gif
+}
+
+export const imgSrc = ex => {
+  if (ex?.id && HD_GIF_MAP[ex.id]) {
+    return HD_BASE + HD_GIF_MAP[ex.id]
+  }
+  return IMG_BASE + ex.img
+}
 
 // Cardio exercises log time + speed instead of weight × reps.
 export const isCardio = idOrEx => (typeof idOrEx === 'string' ? EXIDX[idOrEx] : idOrEx)?.bp === 'cardio'

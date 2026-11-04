@@ -40,9 +40,9 @@ describe('gating', () => {
     expect(coachAvailable({ coach: { enabled: true } }, null)).toBe(false)
   })
 
-  it('is off in the mobile build, which has no server to run anything', () => {
-    expect(coachAvailable({ coach: { enabled: true } }, { id: 'u' }, { mobile: true })).toBe(false)
-    expect(coachAvailable(null, null, { mobile: true })).toBe(false)
+  it('is enabled in the mobile build, running locally on device', () => {
+    expect(coachAvailable({ coach: { enabled: true } }, { id: 'u' }, { mobile: true })).toBe(true)
+    expect(coachAvailable(null, null, { mobile: true })).toBe(true)
   })
 
   it('is on in the demo build, which fakes the provider locally', () => {

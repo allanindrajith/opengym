@@ -27,8 +27,11 @@ export default function Plan() {
   return <>
     <div className="hdr">
       <div><h1>{t('Plan')}</h1><div className="sub">{t('Your weekly routine')}</div></div>
-      {coachOn && <button className="iconbtn" onClick={() => nav('/coach')} aria-label={t('Coach')} title={t('Coach')}><Icon name="sparkles" /></button>}
-      <button className="iconbtn" onClick={planToolsSheet} aria-label={t('Share your plan')} title={t('Share your plan')}><Icon name="upload" /></button>
+      <div className="row" style={{ gap: 8, alignItems: 'center' }}>
+        <button className="iconbtn" onClick={() => nav('/programs')} aria-label={t('Programs & Workouts')} title={t('Programs & Workouts')}><Icon name="dumbbell" /></button>
+        {coachOn && <button className="iconbtn" onClick={() => nav('/coach')} aria-label={t('Coach')} title={t('Coach')}><Icon name="sparkles" /></button>}
+        <button className="iconbtn" onClick={planToolsSheet} aria-label={t('Share your plan')} title={t('Share your plan')}><Icon name="upload" /></button>
+      </div>
     </div>
     <div className="cols"><div>
       <h4 className="sec">{t('Week schedule')}</h4>
@@ -44,7 +47,10 @@ export default function Plan() {
     </div><div>
       <div className="row between" style={{ marginTop: 22, marginBottom: 10 }}>
         <h4 className="sec" style={{ margin: 0 }}>{t('Routines')}</h4>
-        <Button size="sm" variant="tinted" icon="plus" onClick={addRoutine}>{t('New')}</Button>
+        <div className="row" style={{ gap: 6 }}>
+          <Button size="sm" variant="tinted" icon="sparkles" onClick={() => nav('/programs')}>{t('Programs')}</Button>
+          <Button size="sm" variant="tinted" icon="plus" onClick={addRoutine}>{t('New')}</Button>
+        </div>
       </div>
       {S.routines.length ? <div className="list">{S.routines.map(r => <div key={r.id} className="item" onClick={() => nav('/plan/r/' + r.id)}>
         <span className="lrow-i"><Icon name={glyphOf(r.emoji)} /></span>

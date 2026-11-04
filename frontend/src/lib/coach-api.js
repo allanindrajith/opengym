@@ -8,26 +8,35 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { api } from './api.js'
 import { DEMO } from './demo.js'
+import { MOBILE } from './mobile.js'
 import { useStore } from '../store/useStore.js'
 
 const POLL_MS = 3000        // a job is running: often enough to feel live
 const IDLE_MS = 60000       // a Coach screen is open but nothing is running
 
-// The demo build has no backend, so it answers these locally with a canned proposal built
-// from its own seeded profile (lib/coach-demo.js). Everything downstream — validation,
-// staleness, apply, revert, the log — runs unchanged; only the provider is faked. The module
-// is imported dynamically so none of it lands in a self-hosted bundle.
+// The demo build and mobile build run the Coach locally without requiring a dedicated server.
 let demoMod = null
 const demo = async () => (demoMod = demoMod || await import('./coach-demo.js'))
 const S = () => useStore.getState().S
+const IS_LOCAL = DEMO || MOBILE
 
-export const coachStatus = async () => DEMO ? (await demo()).demoStatus() : api('/api/coach/status')
-export const requestReview = async note => DEMO ? (await demo()).demoReview(S()) : api('/api/coach/review', { method: 'POST', body: JSON.stringify({ note: note || '' }) })
-export const requestPlan = async intake => DEMO ? (await demo()).demoPlan(S(), intake) : api('/api/coach/plan', { method: 'POST', body: JSON.stringify({ intake }) })
-export const refinePlan = async text => DEMO ? (await demo()).demoRefine(S()) : api('/api/coach/plan', { method: 'POST', body: JSON.stringify({ refine: text }) })
-export const resolvePending = async body => DEMO ? (await demo()).demoResolve() : api('/api/coach/pending/resolve', { method: 'POST', body: JSON.stringify(body) })
-export const forgetCoach = async () => DEMO ? (await demo()).demoResolve() : api('/api/coach/forget', { method: 'POST', body: '{}' })
-export const disclosure = async () => DEMO ? (await demo()).demoDisclosure() : api('/api/coach/disclosure')
+export const coachStatus = async () => IS_LOCAL ? (await demo()).demoStatus() : api('/api/coach/status')
+export const requestReview = async note => IS_LOCAL ? (await demo()).demoReview(S(), note) : api('/api/coach/review', { method: 'POST', body: JSON.stringify({ note: note || '' }) })
+export const requestPlan = async intake => IS_LOCAL ? (await demo()).demoPlan(S(), intake) : api('/api/coach/plan', { method: 'POST', body: JSON.stringify({ intake }) })
+export const refinePlan = async text => IS_LOCAL ? (await demo()).demoRefine(S(), text) : api('/api/coach/plan', { method: 'POST', body: JSON.stringify({ refine: text }) })
+export const resolvePending = async body => IS_LOCAL ? (await demo()).demoResolve(body) : api('/api/coach/pending/resolve', { method: 'POST', body: JSON.stringify(body) })
+export const forgetCoach = async () => IS_LOCAL ? (await demo()).demoResolve() : api('/api/coach/forget', { method: 'POST', body: '{}' })
+export const disclosure = async () => IS_LOCAL ? (await demo()).demoDisclosure() : api('/api/coach/disclosure')
+
+export const getAiKey = () => {
+  try { return localStorage.getItem('opengym_ai_key') || '' } catch { return '' }
+}
+export const setAiKey = key => {
+  try {
+    if (!key || !key.trim()) localStorage.removeItem('opengym_ai_key')
+    else localStorage.setItem('opengym_ai_key', key.trim())
+  } catch {}
+}
 
 /**
  * Live job/proposal state.

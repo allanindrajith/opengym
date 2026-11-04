@@ -8,7 +8,7 @@ import { MOBILE, nativeLoad, nativeSave, syncReminder } from '../lib/mobile.js'
 const KEY = 'gym_state_v1'
 export const DEF = {
   unit: 'kg', restSec: 90, sound: true, keepAwake: true, lang: 'en',
-  theme: 'dark', accent: 'lime', body: 'male', targetW: null,
+  theme: 'system', accent: 'red', body: 'male', targetW: null,
   bodyweight: [], routines: [], week: {}, dayPlan: {},
   exWeights: {}, workouts: [], active: null, customEx: [], gifSize: 'full',
   // effort: which per-set effort scale is logged — 'none' | 'rir' | 'rpe'. null, not 'none', so
@@ -26,7 +26,12 @@ const clone = o => JSON.parse(JSON.stringify(o))
 function loadState() {
   try {
     const raw = localStorage.getItem(KEY)
-    if (raw) return Object.assign(clone(DEF), JSON.parse(raw))
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if ((parsed.accent === 'lime' || parsed.accent === 'orange') && !parsed._customAccent) parsed.accent = 'red'
+      if (!parsed.theme || (parsed.theme === 'dark' && !parsed._customTheme)) parsed.theme = 'system'
+      return Object.assign(clone(DEF), parsed)
+    }
   } catch (e) { /* ignore */ }
   return clone(DEF)
 }

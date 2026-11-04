@@ -107,6 +107,19 @@ export default function Home() {
 
     {coachOn && <CoachCard nav={nav} />}
 
+    <div className="card" onClick={() => nav('/programs')} style={{ cursor: 'pointer', padding: '13px 15px' }}>
+      <div className="row between" style={{ alignItems: 'center' }}>
+        <div className="row" style={{ gap: 10, alignItems: 'center', minWidth: 0 }}>
+          <span className="lrow-i" style={{ background: 'var(--acc)', color: 'var(--on-acc)', fontSize: 18 }}><Icon name="dumbbell" /></span>
+          <div>
+            <div style={{ fontWeight: 600, fontSize: 15 }}>{t('Workouts & Programs')}</div>
+            <div className="sub" style={{ fontSize: 12 }}>{t('200+ routines, 30-day programs & challenges')}</div>
+          </div>
+        </div>
+        <span className="tag acc">{t('Explore')}</span>
+      </div>
+    </div>
+
     {!S.routines.length && !S.active && (
       <div className="card">
         <div className="row" style={{ gap: 10, marginBottom: 6 }}>
@@ -119,6 +132,8 @@ export default function Home() {
           <div style={{ height: 8 }} />
         </>}
         <Button variant={coachOn ? 'plain' : 'primary'} icon="sparkles" onClick={loadStarterPlan}>{t('Load starter plan (PPL)')}</Button>
+        <div style={{ height: 8 }} />
+        <Button variant="tinted" icon="dumbbell" onClick={() => nav('/programs')}>{t('Browse 200+ Workouts & Programs')}</Button>
         <div style={{ height: 8 }} /><Button onClick={() => nav('/plan')}>{t('Build my own plan')}</Button>
       </div>
     )}

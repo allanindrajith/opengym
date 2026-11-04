@@ -11,11 +11,12 @@ import {
   canRevert, revertLast, changeTitle, recordDismissal
 } from '../lib/coach.js'
 import {
-  useCoachStatus, requestReview, resolvePending, forgetCoach, disclosure, JOB_ERRORS
+  useCoachStatus, requestReview, resolvePending, forgetCoach, disclosure, JOB_ERRORS,
+  getAiKey, setAiKey
 } from '../lib/coach-api.js'
 import { confirmSheet } from '../sheets.jsx'
 import Icon from '../components/Icon.jsx'
-import { Section, Row, Button, TextArea, Switch, SelectRow } from '../components/ui.jsx'
+import { Section, Row, Button, TextArea, Switch, SelectRow, TextField } from '../components/ui.jsx'
 
 /* The Coach's home: what it's doing, what it's proposing, what it has done before, and every
    switch that turns it off. Deliberately one screen — a feature that edits your training plan
@@ -40,9 +41,45 @@ export default function Coach() {
   const config = useStore(s => s.config)
   const update = useStore(s => s.update)
   const toast = useUI(s => s.toast)
+  const openSheet = useUI(s => s.openSheet)
   const [note, setNote] = useState('')
   const [busy, setBusy] = useState(false)
+  const [aiKey, setAiKeyState] = useState(getAiKey)
   const { job, pending, cap, refresh } = useCoachStatus(true)
+
+  const openApiKeySheet = () => openSheet(close => {
+    let temp = getAiKey()
+    return <>
+      <h3>{t('AI Agent API Key')}</h3>
+      <div className="muted small" style={{ lineHeight: 1.5, marginBottom: 12 }}>
+        {t('Optional: Enter your Claude (Anthropic) or OpenAI API key to power your Coach with live frontier AI models directly on this device.')}
+      </div>
+      <TextField
+        type="password"
+        defaultValue={temp}
+        placeholder="sk-ant-... or sk-..."
+        onChange={e => { temp = e.target.value }}
+      />
+      <div style={{ height: 14 }} />
+      <Button variant="primary" icon="check" onClick={() => {
+        setAiKey(temp)
+        setAiKeyState(temp)
+        toast(temp ? t('AI API Key saved') : t('Key removed'))
+        close()
+      }}>{t('Save Key')}</Button>
+      {getAiKey() && <>
+        <div style={{ height: 8 }} />
+        <Button danger onClick={() => {
+          setAiKey('')
+          setAiKeyState('')
+          toast(t('AI API Key removed'))
+          close()
+        }}>{t('Remove Key')}</Button>
+      </>}
+      <div style={{ height: 8 }} />
+      <Button onClick={close}>{t('Cancel')}</Button>
+    </>
+  })
 
   // Gating lives in one predicate; if the instance isn't offering the Coach this route simply
   // isn't a place you can be.
@@ -125,6 +162,9 @@ export default function Coach() {
           <Row icon="clipboard" iconTint="var(--indigo)" title={t('Your answers')}
             subtitle={coach.profile ? summarise(coach.profile) : t('Not set yet')}
             accessory="chevron" onClick={() => nav('/coach/intake?edit=1')} />
+          <Row icon="key" iconTint="var(--teal)" title={t('AI Agent API Key')}
+            subtitle={aiKey ? t('Connected ({0})', aiKey.startsWith('sk-ant-') ? 'Claude' : 'OpenAI') : t('Optional — tap to connect Claude or OpenAI')}
+            accessory="chevron" onClick={openApiKeySheet} />
         </Section>
 
         <LogCard coach={coach} />

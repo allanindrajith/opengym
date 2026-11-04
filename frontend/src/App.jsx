@@ -1,9 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { useStore } from './store/useStore.js'
 import { useUI } from './store/useUI.js'
 import { bindUI } from './components/ui.jsx'
-import { ACCENTS } from './lib/format.js'
 import { setLang, useLang } from './lib/i18n.js'
 import { setNav } from './lib/nav.js'
 import { useWakeLock } from './lib/wakelock.js'
@@ -27,15 +26,24 @@ import Admin from './views/Admin.jsx'
 import Coach from './views/Coach.jsx'
 import CoachIntake from './views/CoachIntake.jsx'
 import CoachProposal from './views/CoachProposal.jsx'
+import Darebee from './views/Darebee.jsx'
 
 bindUI(useUI)   // lets the shared controls open sheets without importing the store at module scope
 
-function applyPrefs(theme, accent) {
+function getSystemTheme() {
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  }
+  return 'dark'
+}
+
+function applyPrefs(theme, accent = 'red') {
   const de = document.documentElement
-  de.dataset.theme = theme === 'light' ? 'light' : 'dark'
-  de.dataset.accent = ACCENTS[accent] ? accent : 'lime'
+  const resolvedTheme = (theme === 'light' || theme === 'dark') ? theme : getSystemTheme()
+  de.dataset.theme = resolvedTheme
+  de.dataset.accent = accent || 'red'
   const meta = document.querySelector('meta[name="theme-color"]')
-  if (meta) meta.content = de.dataset.theme === 'light' ? '#f2f2f7' : '#000000'
+  if (meta) meta.content = resolvedTheme === 'light' ? '#f2f2f7' : '#000000'
 }
 
 function Shell() {
@@ -44,8 +52,18 @@ function Shell() {
   const { S, user, ready } = useStore()
   const isGuest = useStore(s => s.isGuest())
   const langV = useLang()   // re-renders the whole shell when the language (pack) changes
+  const [sysTheme, setSysTheme] = useState(getSystemTheme)
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    const handler = () => setSysTheme(getSystemTheme())
+    mq.addEventListener?.('change', handler)
+    return () => mq.removeEventListener?.('change', handler)
+  }, [])
+
   useEffect(() => { setNav(navigate) }, [navigate])
-  useEffect(() => { applyPrefs(S.theme, S.accent) }, [S.theme, S.accent])
+  useEffect(() => { applyPrefs(S.theme, S.accent) }, [S.theme, S.accent, sysTheme])
   useEffect(() => { setLang(S.lang || 'en') }, [S.lang])
   useEffect(() => { document.documentElement.lang = S.lang || 'en' }, [langV, S.lang])
   // every tab/route change starts at the top of the page
@@ -77,6 +95,8 @@ function Shell() {
               <Route path="/stats" element={<Stats />} />
               <Route path="/history" element={<History />} />
               <Route path="/library" element={<Library />} />
+              <Route path="/programs" element={<Darebee />} />
+              <Route path="/darebee" element={<Navigate to="/programs" replace />} />
               <Route path="/settings" element={<Settings />} />
               {/* The Coach screens gate themselves on the instance config; the routes exist
                   unconditionally so a deep link from a notification lands somewhere sane

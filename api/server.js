@@ -166,8 +166,11 @@ function verifySig(token) {
   if (i < 0) return null;
   const payload = token.slice(0, i), mac = token.slice(i + 1);
   const expect = crypto.createHmac('sha256', SECRET).update(payload).digest('base64url');
+  const bMac = Buffer.from(mac);
+  const bExpect = Buffer.from(expect);
+  if (bMac.length !== bExpect.length) return null;
   try {
-    if (!crypto.timingSafeEqual(Buffer.from(mac), Buffer.from(expect))) return null;
+    if (!crypto.timingSafeEqual(bMac, bExpect)) return null;
   } catch { return null; }
   return payload;
 }
@@ -228,9 +231,54 @@ function takeChallenge(cid) {
 setInterval(() => { for (const [k, v] of challenges) if (v.exp < Date.now()) challenges.delete(k); }, 60000).unref();
 
 /* ---------- helpers ---------- */
+const SECURITY_HEADERS = {
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'strict-origin-when-cross-origin'
+};
+
+function getCorsHeaders(req) {
+  const origin = req?.headers?.origin;
+  if (!origin) return {};
+  const isAllowed = origin === ORIGIN ||
+    /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
+    /^(capacitor|ionic):\/\/localhost$/.test(origin);
+  if (!isAllowed) return {};
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With'
+  };
+}
+
+const rateLimits = new Map();
+function checkRateLimit(ip, limit = 60, windowMs = 60000) {
+  const now = Date.now();
+  const entry = rateLimits.get(ip) || [];
+  const valid = entry.filter(t => now - t < windowMs);
+  if (valid.length >= limit) return false;
+  valid.push(now);
+  rateLimits.set(ip, valid);
+  return true;
+}
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, times] of rateLimits) {
+    const valid = times.filter(t => now - t < 60000);
+    if (!valid.length) rateLimits.delete(ip);
+    else rateLimits.set(ip, valid);
+  }
+}, 60000).unref();
+
 function json(res, code, obj, extraHeaders) {
   const body = JSON.stringify(obj);
-  res.writeHead(code, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...(extraHeaders || {}) });
+  res.writeHead(code, {
+    'Content-Type': 'application/json',
+    'Cache-Control': 'no-store',
+    ...SECURITY_HEADERS,
+    ...(extraHeaders || {})
+  });
   res.end(body);
 }
 function readBody(req) {
@@ -583,13 +631,42 @@ coachJobs.setProposalHook((uid, pending) => {
 startCadence({ users: () => db.users, userNow });
 
 http.createServer(async (req, res) => {
+  const cors = getCorsHeaders(req);
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204, { ...SECURITY_HEADERS, ...cors });
+    res.end();
+    return;
+  }
+
   const url = new URL(req.url, 'http://x');
+
+  // CSRF Origin verification for state-changing requests
+  if (['POST', 'PUT', 'DELETE'].includes(req.method)) {
+    const origin = req.headers.origin;
+    if (origin) {
+      const isAllowed = origin === ORIGIN ||
+        /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
+        /^(capacitor|ionic):\/\/localhost$/.test(origin);
+      if (!isAllowed) {
+        return json(res, 403, { error: 'forbidden: cross-site origin rejected' }, cors);
+      }
+    }
+  }
+
+  // Rate limit registration and login endpoints
+  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+  if (url.pathname.startsWith('/api/register') || url.pathname.startsWith('/api/login')) {
+    if (!checkRateLimit(ip, 60)) {
+      return json(res, 429, { error: 'too many requests — try again in a minute' }, cors);
+    }
+  }
+
   const key = req.method + ' ' + url.pathname;
   const handler = routes[key];
-  if (!handler) return json(res, 404, { error: 'not found' });
+  if (!handler) return json(res, 404, { error: 'not found' }, cors);
   try { await handler(req, res); }
   catch (e) {
     console.error(key, e);
-    if (!res.headersSent) json(res, 500, { error: 'server error' });
+    if (!res.headersSent) json(res, 500, { error: 'server error' }, cors);
   }
 }).listen(PORT, () => console.log(`gym-api on :${PORT} (rpID=${RP_ID}, origin=${ORIGIN})`));
