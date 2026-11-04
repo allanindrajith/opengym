@@ -324,7 +324,7 @@ A muscle map across the app, and a live demo you can try without installing anyt
 - 🐛 **Fixed: finishing a workout from its last exercise could blank the whole app.** The
   per-exercise weight sheet read the running workout without checking it was still there, and
   finishing clears it while that sheet is still on screen.
-- ▶️ **Live demo** at [duartesantos8.github.io/openGym](https://duartesantos8.github.io/openGym/) —
+- ▶️ **Live demo** at [allanindrajith.github.io/opengym](https://allanindrajith.github.io/opengym/) —
   a browser-only build (`VITE_DEMO=1`) published to GitHub Pages on every push to `main`. It boots
   into guest mode with a seeded example profile (12 weeks of Push/Pull/Legs, weigh-ins, PRs) so
   every screen has something to show, and it never talks to a server. Passkeys, sync and the admin
@@ -475,7 +475,7 @@ Reliability fixes for the push notifications shipped in v1.1.0, found through li
 
 ## v1.1.0 — 2026-07-21
 
-- 🐳 Prebuilt Docker images published to `ghcr.io/duartesantos8/opengym-{api,web}` (amd64 + arm64)
+- 🐳 Prebuilt Docker images published to `ghcr.io/allanindrajith/opengym-{api,web}` (amd64 + arm64)
   via GitHub Actions, so self-hosting no longer requires building from source. `docker compose pull`
   grabs them; `docker compose up -d --build` still builds locally if you'd rather.
 - 🔔 Push notifications: rest-timer-over alert (fires even if the app is closed) and an optional

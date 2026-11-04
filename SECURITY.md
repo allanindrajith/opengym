@@ -50,7 +50,7 @@ in the thread; there's no objection, and no request to sit on it indefinitely.
   change a signed-in user's data.
 - **Shipped deployment config** — `docker-compose.yml`, `web/nginx.conf`, the two Dockerfiles:
   a default that exposes something a self-hoster wouldn't expect to be exposed.
-- **The published images** `ghcr.io/duartesantos8/opengym-api` and `-web`.
+- **The published images** `ghcr.io/allanindrajith/opengym-api` and `-web`.
 
 ## Out of scope
 

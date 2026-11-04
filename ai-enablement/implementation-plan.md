@@ -3,7 +3,7 @@
 **Feature:** AI Coach — plan creation & feedback-driven recalculation via a locally-run CLI agent
 **Companion document:** [`functional-plan.md`](./functional-plan.md) — all FR/NFR/story IDs referenced below are defined there
 **Status:** Draft for review
-**Baseline:** `main` @ `1f40230` (v1.2.3 + dependabot config), fork `alexpcosta/openGym`
+**Baseline:** `main` @ `1f40230` (v1.2.3 + dependabot config), fork `allanindrajith/opengym`
 **Target release:** v1.3.0
 
 ---
