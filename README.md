@@ -22,6 +22,7 @@ No account on someone else's server, no subscription, no ads. Just `docker compo
 ![GitHub last commit](https://img.shields.io/github/last-commit/allanindrajith/opengym?style=flat-square)
 [![GitHub stars](https://img.shields.io/github/stars/allanindrajith/opengym?style=flat-square)](https://github.com/allanindrajith/opengym/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues/allanindrajith/opengym?style=flat-square)](https://github.com/allanindrajith/opengym/issues)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-a3e635?style=flat-square&logo=buymeacoffee&logoColor=000000)](https://www.buymeacoffee.com/allanidrajith)
 
 </div>
 
